@@ -1,5 +1,5 @@
 // src/pages/Register.js
-import React, { useState } from 'react';
+import React from "react";
 import {
   Form,
   Input,
@@ -10,17 +10,17 @@ import {
   Alert,
   Space,
   Row,
-  Col
-} from 'antd';
+  Col,
+} from "antd";
 import {
   UserOutlined,
   LockOutlined,
   MailOutlined,
   UserAddOutlined,
-  IdcardOutlined
-} from '@ant-design/icons';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+  IdcardOutlined,
+} from "@ant-design/icons";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const { Title, Text } = Typography;
 
@@ -35,31 +35,37 @@ const Register = () => {
       email: values.email,
       password: values.password,
       password2: values.confirm,
-      first_name: values.firstName || '',
-      last_name: values.lastName || ''
+      first_name: values.firstName || "",
+      last_name: values.lastName || "",
     };
 
     const success = await register(userData);
     if (success) {
-      navigate('/login', {
+      navigate("/login", {
         state: {
-          message: 'Đăng ký thành công! Vui lòng đăng nhập.'
-        }
+          message: "Đăng ký thành công! Vui lòng đăng nhập.",
+        },
       });
     }
   };
 
   return (
-    <div style={{
-      maxWidth: '600px',
-      margin: '0 auto',
-      padding: '20px 0'
-    }}>
-      <Card bordered={false} style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+    <div
+      style={{
+        maxWidth: "600px",
+        margin: "0 auto",
+        padding: "20px 0",
+      }}
+    >
+      <Card
+        bordered={false}
+        style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
+      >
+        <div style={{ textAlign: "center", marginBottom: "24px" }}>
           <Title level={2}>Đăng ký tài khoản</Title>
           <Text type="secondary">
-            Tạo tài khoản để lưu trữ lịch sử chẩn đoán và quản lý thông tin sức khỏe
+            Tạo tài khoản để lưu trữ lịch sử chẩn đoán và quản lý thông tin sức
+            khỏe
           </Text>
         </div>
 
@@ -69,7 +75,7 @@ const Register = () => {
             description={error}
             type="error"
             showIcon
-            style={{ marginBottom: '24px' }}
+            style={{ marginBottom: "24px" }}
           />
         )}
 
@@ -85,12 +91,11 @@ const Register = () => {
               <Form.Item
                 name="username"
                 label="Tên đăng nhập"
-                rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập!' }]}
+                rules={[
+                  { required: true, message: "Vui lòng nhập tên đăng nhập!" },
+                ]}
               >
-                <Input
-                  prefix={<UserOutlined />}
-                  placeholder="Tên đăng nhập"
-                />
+                <Input prefix={<UserOutlined />} placeholder="Tên đăng nhập" />
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
@@ -98,39 +103,24 @@ const Register = () => {
                 name="email"
                 label="Email"
                 rules={[
-                  { required: true, message: 'Vui lòng nhập email!' },
-                  { type: 'email', message: 'Email không hợp lệ!' }
+                  { required: true, message: "Vui lòng nhập email!" },
+                  { type: "email", message: "Email không hợp lệ!" },
                 ]}
               >
-                <Input
-                  prefix={<MailOutlined />}
-                  placeholder="Email"
-                />
+                <Input prefix={<MailOutlined />} placeholder="Email" />
               </Form.Item>
             </Col>
           </Row>
 
           <Row gutter={16}>
             <Col xs={24} md={12}>
-              <Form.Item
-                name="firstName"
-                label="Tên"
-              >
-                <Input
-                  prefix={<IdcardOutlined />}
-                  placeholder="Tên"
-                />
+              <Form.Item name="firstName" label="Tên">
+                <Input prefix={<IdcardOutlined />} placeholder="Tên" />
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
-              <Form.Item
-                name="lastName"
-                label="Họ"
-              >
-                <Input
-                  prefix={<IdcardOutlined />}
-                  placeholder="Họ"
-                />
+              <Form.Item name="lastName" label="Họ">
+                <Input prefix={<IdcardOutlined />} placeholder="Họ" />
               </Form.Item>
             </Col>
           </Row>
@@ -141,8 +131,8 @@ const Register = () => {
                 name="password"
                 label="Mật khẩu"
                 rules={[
-                  { required: true, message: 'Vui lòng nhập mật khẩu!' },
-                  { min: 8, message: 'Mật khẩu phải có ít nhất 8 ký tự!' }
+                  { required: true, message: "Vui lòng nhập mật khẩu!" },
+                  { min: 8, message: "Mật khẩu phải có ít nhất 8 ký tự!" },
                 ]}
               >
                 <Input.Password
@@ -155,15 +145,17 @@ const Register = () => {
               <Form.Item
                 name="confirm"
                 label="Xác nhận mật khẩu"
-                dependencies={['password']}
+                dependencies={["password"]}
                 rules={[
-                  { required: true, message: 'Vui lòng xác nhận mật khẩu!' },
+                  { required: true, message: "Vui lòng xác nhận mật khẩu!" },
                   ({ getFieldValue }) => ({
                     validator(_, value) {
-                      if (!value || getFieldValue('password') === value) {
+                      if (!value || getFieldValue("password") === value) {
                         return Promise.resolve();
                       }
-                      return Promise.reject(new Error('Hai mật khẩu không khớp!'));
+                      return Promise.reject(
+                        new Error("Hai mật khẩu không khớp!")
+                      );
                     },
                   }),
                 ]}
@@ -194,8 +186,8 @@ const Register = () => {
           <Text type="secondary">Hoặc</Text>
         </Divider>
 
-        <div style={{ textAlign: 'center' }}>
-          <Space direction="vertical" style={{ width: '100%' }}>
+        <div style={{ textAlign: "center" }}>
+          <Space direction="vertical" style={{ width: "100%" }}>
             <Text>Đã có tài khoản?</Text>
             <Button type="default" block>
               <Link to="/login">Đăng nhập ngay</Link>

@@ -1,20 +1,31 @@
 // src/components/appointments/AppointmentForm.js
-import React, { useState, useEffect } from 'react';
-import { Form, Input, Select, DatePicker, TimePicker, Button, Card, Typography, message, Space, Spin } from 'antd';
-import { ScheduleOutlined, UserOutlined, MedicineBoxOutlined, CommentOutlined } from '@ant-design/icons';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { doctorService } from '../../api/services/doctorService';
-import { appointmentService } from '../../api/services/appointmentService';
-import moment from 'moment';
-import {useAuth} from "../../context/AuthContext";
+import React, { useState, useEffect } from "react";
+import {
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  TimePicker,
+  Button,
+  Card,
+  Typography,
+  message,
+  Space,
+  Spin,
+} from "antd";
+import { ScheduleOutlined } from "@ant-design/icons";
+import { useNavigate, useLocation } from "react-router-dom";
+import { doctorService } from "../../api/services/doctorService";
+import { appointmentService } from "../../api/services/appointmentService";
+import moment from "moment";
+import { useAuth } from "../../context/AuthContext";
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
 const { Option } = Select;
 const { TextArea } = Input;
 
-
 const AppointmentForm = () => {
-   const { user } = useAuth(); //
+  const { user } = useAuth();
 
   const [form] = Form.useForm();
   const navigate = useNavigate();
@@ -28,13 +39,15 @@ const AppointmentForm = () => {
 
   // Get pre-selected doctor and date from location state (if coming from doctor detail)
   const preSelectedDoctor = location.state?.doctorId;
-  const preSelectedDate = location.state?.date ? moment(location.state.date) : null;
+  const preSelectedDate = location.state?.date
+    ? moment(location.state.date)
+    : null;
   const preSelectedSlot = location.state?.slot;
 
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        console.log(user)
+        console.log(user);
         setLoading(true);
         const response = await doctorService.getDoctors();
         console.log("Doctors API Response:", response); // Debug log
@@ -43,20 +56,24 @@ const AppointmentForm = () => {
         const doctorsData = response.data.results || [];
 
         // Chỉ lấy bác sĩ có available_for_appointment = true
-        const availableDoctors = doctorsData.filter(doctor => doctor.available_for_appointment);
+        const availableDoctors = doctorsData.filter(
+          (doctor) => doctor.available_for_appointment
+        );
         setDoctors(availableDoctors);
 
         // Nếu có preSelectedDoctor, tìm và set selected doctor
         if (preSelectedDoctor) {
-          const selected = availableDoctors.find(doc => doc.id === parseInt(preSelectedDoctor));
+          const selected = availableDoctors.find(
+            (doc) => doc.id === parseInt(preSelectedDoctor)
+          );
           if (selected) {
             setSelectedDoctor(selected);
             form.setFieldsValue({ doctor: selected.id });
           }
         }
       } catch (error) {
-        console.error('Error fetching doctors:', error);
-        message.error('Failed to load doctors');
+        console.error("Error fetching doctors:", error);
+        message.error("Failed to load doctors");
       } finally {
         setLoading(false);
       }
@@ -74,8 +91,8 @@ const AppointmentForm = () => {
 
     if (preSelectedSlot) {
       form.setFieldsValue({
-        start_time: moment(preSelectedSlot.start_time, 'HH:mm:ss'),
-        end_time: moment(preSelectedSlot.end_time, 'HH:mm:ss')
+        start_time: moment(preSelectedSlot.start_time, "HH:mm:ss"),
+        end_time: moment(preSelectedSlot.end_time, "HH:mm:ss"),
       });
     }
   }, [form, preSelectedDoctor, preSelectedDate, preSelectedSlot]);
@@ -85,8 +102,11 @@ const AppointmentForm = () => {
 
     try {
       setLoadingSlots(true);
-      const formattedDate = date.format('YYYY-MM-DD');
-      const response = await doctorService.getAvailableSlots(doctorId, formattedDate);
+      const formattedDate = date.format("YYYY-MM-DD");
+      const response = await doctorService.getAvailableSlots(
+        doctorId,
+        formattedDate
+      );
 
       // Mock data for available slots (vì endpoint available_slots có thể chưa triển khai)
       // Trong thực tế, bạn sẽ sử dụng dữ liệu từ response
@@ -96,7 +116,7 @@ const AppointmentForm = () => {
         setAvailableSlots(response.data.available_slots);
       } else {
         // Tạo slots dựa trên lịch làm việc của bác sĩ
-        const selectedDoc = doctors.find(d => d.id === parseInt(doctorId));
+        const selectedDoc = doctors.find((d) => d.id === parseInt(doctorId));
 
         if (selectedDoc && selectedDoc.schedules) {
           const dayOfWeek = date.day(); // 0 = Sunday, 1 = Monday, ...
@@ -104,23 +124,25 @@ const AppointmentForm = () => {
           const adjustedDayOfWeek = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
 
           // Tìm lịch làm việc cho ngày đã chọn
-          const daySchedule = selectedDoc.schedules.find(s => s.day_of_week === adjustedDayOfWeek);
+          const daySchedule = selectedDoc.schedules.find(
+            (s) => s.day_of_week === adjustedDayOfWeek
+          );
 
           if (daySchedule) {
             // Tạo các slot 1 giờ từ giờ bắt đầu đến giờ kết thúc
-            const startTime = moment(daySchedule.start_time, 'HH:mm:ss');
-            const endTime = moment(daySchedule.end_time, 'HH:mm:ss');
+            const startTime = moment(daySchedule.start_time, "HH:mm:ss");
+            const endTime = moment(daySchedule.end_time, "HH:mm:ss");
 
             const slots = [];
             let currentSlot = startTime.clone();
 
             while (currentSlot.isBefore(endTime)) {
-              const slotEndTime = currentSlot.clone().add(1, 'hour');
+              const slotEndTime = currentSlot.clone().add(1, "hour");
               if (slotEndTime.isAfter(endTime)) break;
 
               slots.push({
-                start_time: currentSlot.format('HH:mm:ss'),
-                end_time: slotEndTime.format('HH:mm:ss')
+                start_time: currentSlot.format("HH:mm:ss"),
+                end_time: slotEndTime.format("HH:mm:ss"),
               });
 
               currentSlot = slotEndTime;
@@ -129,15 +151,15 @@ const AppointmentForm = () => {
             setAvailableSlots(slots);
           } else {
             setAvailableSlots([]);
-            message.info('Doctor does not work on this day');
+            message.info("Doctor does not work on this day");
           }
         } else {
           setAvailableSlots([]);
         }
       }
     } catch (error) {
-      console.error('Error fetching available slots:', error);
-      message.error('Failed to load available time slots');
+      console.error("Error fetching available slots:", error);
+      message.error("Failed to load available time slots");
       setAvailableSlots([]);
     } finally {
       setLoadingSlots(false);
@@ -146,17 +168,17 @@ const AppointmentForm = () => {
 
   const handleDoctorChange = (value) => {
     const doctorId = parseInt(value);
-    const selected = doctors.find(d => d.id === doctorId);
+    const selected = doctors.find((d) => d.id === doctorId);
     setSelectedDoctor(selected);
 
-    const date = form.getFieldValue('appointment_date');
+    const date = form.getFieldValue("appointment_date");
     if (date) {
       fetchAvailableSlots(doctorId, date);
     }
   };
 
   const handleDateChange = (date) => {
-    const doctorId = form.getFieldValue('doctor');
+    const doctorId = form.getFieldValue("doctor");
     if (doctorId) {
       fetchAvailableSlots(doctorId, date);
     }
@@ -164,8 +186,8 @@ const AppointmentForm = () => {
 
   const handleSlotSelect = (slot) => {
     form.setFieldsValue({
-      start_time: moment(slot.start_time, 'HH:mm:ss'),
-      end_time: moment(slot.end_time, 'HH:mm:ss')
+      start_time: moment(slot.start_time, "HH:mm:ss"),
+      end_time: moment(slot.end_time, "HH:mm:ss"),
     });
   };
 
@@ -174,28 +196,28 @@ const AppointmentForm = () => {
       setSubmitting(true);
 
       if (!user || !user.id) {
-        message.error('You must be logged in to book an appointment');
-        navigate('/login', { state: { from: location } });
+        message.error("You must be logged in to book an appointment");
+        navigate("/login", { state: { from: location } });
         return;
       }
 
       const appointmentData = {
         doctor: values.doctor,
         patient: user.id, // Sử dụng ID của user đang đăng nhập
-        appointment_date: values.appointment_date.format('YYYY-MM-DD'),
-        start_time: values.start_time.format('HH:mm:ss'),
-        end_time: values.end_time.format('HH:mm:ss'),
+        appointment_date: values.appointment_date.format("YYYY-MM-DD"),
+        start_time: values.start_time.format("HH:mm:ss"),
+        end_time: values.end_time.format("HH:mm:ss"),
         reason: values.reason,
-        notes: values.notes || ""
+        notes: values.notes || "",
       };
 
       await appointmentService.createAppointment(appointmentData);
 
-      message.success('Appointment booked successfully!');
-      navigate('/appointments');
+      message.success("Appointment booked successfully!");
+      navigate("/appointments");
     } catch (error) {
-      console.error('Error booking appointment:', error);
-      message.error('Failed to book appointment. Please try again.');
+      console.error("Error booking appointment:", error);
+      message.error("Failed to book appointment. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -203,7 +225,11 @@ const AppointmentForm = () => {
 
   // Check if a date is a working day for the selected doctor
   const isWorkingDay = (date) => {
-    if (!selectedDoctor || !selectedDoctor.schedules || selectedDoctor.schedules.length === 0) {
+    if (
+      !selectedDoctor ||
+      !selectedDoctor.schedules ||
+      selectedDoctor.schedules.length === 0
+    ) {
       return false;
     }
 
@@ -213,19 +239,28 @@ const AppointmentForm = () => {
     const adjustedDayOfWeek = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
 
     // Check if the doctor works on this day
-    return selectedDoctor.schedules.some(schedule => schedule.day_of_week === adjustedDayOfWeek);
+    return selectedDoctor.schedules.some(
+      (schedule) => schedule.day_of_week === adjustedDayOfWeek
+    );
   };
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "60vh",
+        }}
+      >
         <Spin size="large" tip="Loading doctors..." />
       </div>
     );
   }
 
   return (
-    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+    <Space direction="vertical" size="large" style={{ width: "100%" }}>
       <Title level={2}>
         <ScheduleOutlined /> Book an Appointment
       </Title>
@@ -237,13 +272,13 @@ const AppointmentForm = () => {
           onFinish={onFinish}
           initialValues={{
             appointment_date: preSelectedDate,
-            doctor: preSelectedDoctor
+            doctor: preSelectedDoctor,
           }}
         >
           <Form.Item
             name="doctor"
             label="Select Doctor"
-            rules={[{ required: true, message: 'Please select a doctor' }]}
+            rules={[{ required: true, message: "Please select a doctor" }]}
           >
             <Select
               placeholder="Select a doctor"
@@ -251,9 +286,10 @@ const AppointmentForm = () => {
               loading={loading}
               disabled={submitting}
             >
-              {doctors.map(doctor => (
+              {doctors.map((doctor) => (
                 <Option key={doctor.id} value={doctor.id}>
-                  Dr. {doctor.user.first_name} {doctor.user.last_name} - {doctor.specialization}
+                  Dr. {doctor.user.first_name} {doctor.user.last_name} -{" "}
+                  {doctor.specialization}
                 </Option>
               ))}
             </Select>
@@ -262,16 +298,18 @@ const AppointmentForm = () => {
           <Form.Item
             name="appointment_date"
             label="Select Date"
-            rules={[{ required: true, message: 'Please select a date' }]}
+            rules={[{ required: true, message: "Please select a date" }]}
           >
             <DatePicker
-              style={{ width: '100%' }}
+              style={{ width: "100%" }}
               onChange={handleDateChange}
               disabledDate={(current) => {
                 // Disable past dates, dates beyond 30 days, and non-working days
-                const isPastDate = current && current < moment().startOf('day');
-                const isFutureDate = current && current > moment().add(30, 'days');
-                const isNonWorkingDay = selectedDoctor && !isWorkingDay(current);
+                const isPastDate = current && current < moment().startOf("day");
+                const isFutureDate =
+                  current && current > moment().add(30, "days");
+                const isNonWorkingDay =
+                  selectedDoctor && !isWorkingDay(current);
 
                 return isPastDate || isFutureDate || isNonWorkingDay;
               }}
@@ -280,7 +318,14 @@ const AppointmentForm = () => {
           </Form.Item>
 
           <Form.Item label="Available Slots">
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "10px",
+                marginBottom: "20px",
+              }}
+            >
               {loadingSlots ? (
                 <Spin size="small" />
               ) : availableSlots.length > 0 ? (
@@ -288,13 +333,16 @@ const AppointmentForm = () => {
                   <Button
                     key={index}
                     onClick={() => handleSlotSelect(slot)}
-                    style={{ margin: '5px' }}
+                    style={{ margin: "5px" }}
                   >
-                    {moment(slot.start_time, 'HH:mm:ss').format('h:mm A')} - {moment(slot.end_time, 'HH:mm:ss').format('h:mm A')}
+                    {moment(slot.start_time, "HH:mm:ss").format("h:mm A")} -{" "}
+                    {moment(slot.end_time, "HH:mm:ss").format("h:mm A")}
                   </Button>
                 ))
               ) : (
-                <Text type="secondary">No available slots for selected date</Text>
+                <Text type="secondary">
+                  No available slots for selected date
+                </Text>
               )}
             </div>
           </Form.Item>
@@ -302,11 +350,11 @@ const AppointmentForm = () => {
           <Form.Item
             name="start_time"
             label="Start Time"
-            rules={[{ required: true, message: 'Please select a start time' }]}
+            rules={[{ required: true, message: "Please select a start time" }]}
           >
             <TimePicker
               format="HH:mm"
-              style={{ width: '100%' }}
+              style={{ width: "100%" }}
               disabled={submitting}
             />
           </Form.Item>
@@ -314,11 +362,11 @@ const AppointmentForm = () => {
           <Form.Item
             name="end_time"
             label="End Time"
-            rules={[{ required: true, message: 'Please select an end time' }]}
+            rules={[{ required: true, message: "Please select an end time" }]}
           >
             <TimePicker
               format="HH:mm"
-              style={{ width: '100%' }}
+              style={{ width: "100%" }}
               disabled={submitting}
             />
           </Form.Item>
@@ -326,7 +374,12 @@ const AppointmentForm = () => {
           <Form.Item
             name="reason"
             label="Reason for Visit"
-            rules={[{ required: true, message: 'Please provide a reason for your visit' }]}
+            rules={[
+              {
+                required: true,
+                message: "Please provide a reason for your visit",
+              },
+            ]}
           >
             <TextArea
               rows={3}
@@ -335,10 +388,7 @@ const AppointmentForm = () => {
             />
           </Form.Item>
 
-          <Form.Item
-            name="notes"
-            label="Additional Notes"
-          >
+          <Form.Item name="notes" label="Additional Notes">
             <TextArea
               rows={3}
               placeholder="Any additional information for the doctor"

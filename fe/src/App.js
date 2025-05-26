@@ -1,35 +1,35 @@
 // src/App.js (updated)
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ConfigProvider } from 'antd';
-import viVN from 'antd/lib/locale/vi_VN'; // Import locale tiếng Việt cho Ant Design
-import { AuthProvider, useAuth } from './context/AuthContext';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ConfigProvider } from "antd";
+import viVN from "antd/lib/locale/vi_VN"; // Import locale tiếng Việt cho Ant Design
+import { AuthProvider } from "./context/AuthContext";
 
 // Layouts
-import MainLayout from './layouts/MainLayout';
+import MainLayout from "./layouts/MainLayout";
 
 // Pages & Components
 // Original pages
-import Home from './pages/Home';
-import DiagnosisResult from './pages/DiagnosisResult';
-import DiagnosisHistory from './pages/DiagnosisHistory';
-import DiagnosisDetail from './pages/DiagnosisDetail';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Profile from './pages/Profile';
-import NotFound from './pages/NotFound';
+import Home from "./pages/Home";
+import DiagnosisResult from "./pages/DiagnosisResult";
+import DiagnosisHistory from "./pages/DiagnosisHistory";
+import DiagnosisDetail from "./pages/DiagnosisDetail";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Profile from "./pages/Profile";
+import NotFound from "./pages/NotFound";
 
 // New pages
-import Dashboard from './pages/Dashboard';
-import DoctorList from './components/doctors/DoctorList';
-import DoctorDetail from './components/doctors/DoctorDetail';
-import AppointmentList from './components/appointments/AppointmentList';
-import AppointmentForm from './components/appointments/AppointmentForm';
-import AppointmentDetail from './components/appointments/AppointmentDetail';
-import AIChat from './components/chat/AIChat';
+import Dashboard from "./pages/Dashboard";
+import DoctorList from "./components/doctors/DoctorList";
+import DoctorDetail from "./components/doctors/DoctorDetail";
+import AppointmentList from "./components/appointments/AppointmentList";
+import AppointmentForm from "./components/appointments/AppointmentForm";
+import AppointmentDetail from "./components/appointments/AppointmentDetail";
+import AIChat from "./components/chat/AIChat";
 
 // Components
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
   return (
@@ -47,19 +47,35 @@ const App = () => {
               {/* Protected routes */}
               <Route
                 path="/dashboard"
-                element={<ProtectedRoute><Dashboard /></ProtectedRoute>}
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
               />
               <Route
                 path="/history"
-                element={<ProtectedRoute><DiagnosisHistory /></ProtectedRoute>}
+                element={
+                  <ProtectedRoute>
+                    <DiagnosisHistory />
+                  </ProtectedRoute>
+                }
               />
               <Route
                 path="/history/:id"
-                element={<ProtectedRoute><DiagnosisDetail /></ProtectedRoute>}
+                element={
+                  <ProtectedRoute>
+                    <DiagnosisDetail />
+                  </ProtectedRoute>
+                }
               />
               <Route
                 path="/profile"
-                element={<ProtectedRoute><Profile /></ProtectedRoute>}
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                }
               />
 
               {/* Doctor routes */}
@@ -69,15 +85,27 @@ const App = () => {
               {/* Appointment routes */}
               <Route
                 path="/appointments"
-                element={<ProtectedRoute><AppointmentList /></ProtectedRoute>}
+                element={
+                  <ProtectedRoute>
+                    <AppointmentList />
+                  </ProtectedRoute>
+                }
               />
               <Route
                 path="/appointments/new"
-                element={<ProtectedRoute><AppointmentForm /></ProtectedRoute>}
+                element={
+                  <ProtectedRoute>
+                    <AppointmentForm />
+                  </ProtectedRoute>
+                }
               />
               <Route
                 path="/appointments/:id"
-                element={<ProtectedRoute><AppointmentDetail /></ProtectedRoute>}
+                element={
+                  <ProtectedRoute>
+                    <AppointmentDetail />
+                  </ProtectedRoute>
+                }
               />
 
               <Route path="*" element={<NotFound />} />

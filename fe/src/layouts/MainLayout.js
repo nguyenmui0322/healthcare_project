@@ -1,6 +1,15 @@
 // src/layouts/MainLayout.js (updated)
-import React, { useState, useEffect } from 'react';
-import { Layout, Menu, Button, Drawer, Avatar, Space, Dropdown, Badge } from 'antd';
+import React, { useState, useEffect } from "react";
+import {
+  Layout,
+  Menu,
+  Button,
+  Drawer,
+  Avatar,
+  Space,
+  Dropdown,
+  Badge,
+} from "antd";
 import {
   UserOutlined,
   HomeOutlined,
@@ -12,15 +21,12 @@ import {
   UserAddOutlined,
   DashboardOutlined,
   CalendarOutlined,
-  MedicineBoxOutlined,
-  ExperimentOutlined,
-  DollarOutlined,
   BellOutlined,
-  TeamOutlined
-} from '@ant-design/icons';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { notificationService } from '../api/services/notificationService';
+  TeamOutlined,
+} from "@ant-design/icons";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { notificationService } from "../api/services/notificationService";
 
 const { Header, Content, Footer } = Layout;
 
@@ -45,7 +51,7 @@ const MainLayout = ({ children }) => {
       setNotifications(response.data);
       setNotificationCount(response.data.length);
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      console.error("Error fetching notifications:", error);
     }
   };
 
@@ -64,7 +70,7 @@ const MainLayout = ({ children }) => {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate("/");
     setVisible(false);
   };
 
@@ -74,7 +80,7 @@ const MainLayout = ({ children }) => {
       setNotificationCount(0);
       fetchNotifications(); // Refresh notifications
     } catch (error) {
-      console.error('Error marking notifications as read:', error);
+      console.error("Error marking notifications as read:", error);
     }
   };
 
@@ -82,23 +88,23 @@ const MainLayout = ({ children }) => {
   const getMenuItems = () => {
     const baseItems = [
       {
-        key: '/',
+        key: "/",
         icon: <HomeOutlined />,
-        label: 'Home',
-        onClick: () => handleMenuClick('/')
+        label: "Home",
+        onClick: () => handleMenuClick("/"),
       },
       {
-        key: '/doctors',
+        key: "/doctors",
         icon: <TeamOutlined />,
-        label: 'Find Doctors',
-        onClick: () => handleMenuClick('/doctors')
+        label: "Find Doctors",
+        onClick: () => handleMenuClick("/doctors"),
       },
       {
-        key: '/ai-chat',
+        key: "/ai-chat",
         icon: <RobotOutlined />,
-        label: 'AI Health Assistant',
-        onClick: () => handleMenuClick('/ai-chat')
-      }
+        label: "AI Health Assistant",
+        onClick: () => handleMenuClick("/ai-chat"),
+      },
     ];
 
     // Add authenticated menu items
@@ -106,35 +112,35 @@ const MainLayout = ({ children }) => {
       return [
         ...baseItems,
         {
-          key: '/dashboard',
+          key: "/dashboard",
           icon: <DashboardOutlined />,
-          label: 'Dashboard',
-          onClick: () => handleMenuClick('/dashboard')
+          label: "Dashboard",
+          onClick: () => handleMenuClick("/dashboard"),
         },
         {
-          key: '/appointments',
+          key: "/appointments",
           icon: <CalendarOutlined />,
-          label: 'Appointments',
-          onClick: () => handleMenuClick('/appointments')
+          label: "Appointments",
+          onClick: () => handleMenuClick("/appointments"),
         },
         {
-          key: '/history',
+          key: "/history",
           icon: <HistoryOutlined />,
-          label: 'Diagnosis History',
-          onClick: () => handleMenuClick('/history')
+          label: "Diagnosis History",
+          onClick: () => handleMenuClick("/history"),
         },
         {
-          key: '/profile',
+          key: "/profile",
           icon: <UserOutlined />,
-          label: 'Profile',
-          onClick: () => handleMenuClick('/profile')
+          label: "Profile",
+          onClick: () => handleMenuClick("/profile"),
         },
         {
-          key: 'logout',
+          key: "logout",
           icon: <LogoutOutlined />,
-          label: 'Logout',
-          onClick: handleLogout
-        }
+          label: "Logout",
+          onClick: handleLogout,
+        },
       ];
     }
 
@@ -142,17 +148,17 @@ const MainLayout = ({ children }) => {
     return [
       ...baseItems,
       {
-        key: '/login',
+        key: "/login",
         icon: <LoginOutlined />,
-        label: 'Login',
-        onClick: () => handleMenuClick('/login')
+        label: "Login",
+        onClick: () => handleMenuClick("/login"),
       },
       {
-        key: '/register',
+        key: "/register",
         icon: <UserAddOutlined />,
-        label: 'Register',
-        onClick: () => handleMenuClick('/register')
-      }
+        label: "Register",
+        onClick: () => handleMenuClick("/register"),
+      },
     ];
   };
 
@@ -161,11 +167,13 @@ const MainLayout = ({ children }) => {
     items: notifications.map((notification, index) => ({
       key: notification.id,
       label: (
-        <div style={{ maxWidth: '300px' }}>
-          <div style={{ fontWeight: 'bold' }}>{notification.title}</div>
-          <div style={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>{notification.message}</div>
+        <div style={{ maxWidth: "300px" }}>
+          <div style={{ fontWeight: "bold" }}>{notification.title}</div>
+          <div style={{ whiteSpace: "normal", wordWrap: "break-word" }}>
+            {notification.message}
+          </div>
         </div>
-      )
+      ),
     })),
     onClick: ({ key }) => {
       // Mark specific notification as read
@@ -173,53 +181,64 @@ const MainLayout = ({ children }) => {
 
       // You could also navigate to the related item based on notification type
       // For now, just reduce the count
-      setNotificationCount(prev => Math.max(0, prev - 1));
+      setNotificationCount((prev) => Math.max(0, prev - 1));
     },
     footer: (
-      <div style={{ textAlign: 'center', padding: '5px 0' }}>
+      <div style={{ textAlign: "center", padding: "5px 0" }}>
         <Button type="link" onClick={handleMarkAllRead}>
           Mark all as read
         </Button>
       </div>
-    )
+    ),
   };
 
   return (
-    <Layout className="layout" style={{ minHeight: '100vh' }}>
+    <Layout className="layout" style={{ minHeight: "100vh" }}>
       {/* Header for all screen sizes */}
-      <Header style={{
-        padding: '0 16px',
-        position: 'sticky',
-        top: 0,
-        zIndex: 1,
-        width: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-      }}>
+      <Header
+        style={{
+          padding: "0 16px",
+          position: "sticky",
+          top: 0,
+          zIndex: 1,
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
         {/* Logo + Title */}
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Link to="/" style={{ display: 'flex', alignItems: 'center' }}>
-            <RobotOutlined style={{ fontSize: '24px', color: 'white', marginRight: '10px' }} />
-            <h1 style={{
-              color: 'white',
-              margin: 0,
-              fontSize: '18px',
-              display: 'none',
-              '@media (min-width: 576px)': {
-                display: 'block'
-              }
-            }}>AI Health Assistant</h1>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <Link to="/" style={{ display: "flex", alignItems: "center" }}>
+            <RobotOutlined
+              style={{ fontSize: "24px", color: "white", marginRight: "10px" }}
+            />
+            <h1
+              style={{
+                color: "white",
+                margin: 0,
+                fontSize: "18px",
+                display: "none",
+                "@media (min-width: 576px)": {
+                  display: "block",
+                },
+              }}
+            >
+              AI Health Assistant
+            </h1>
           </Link>
         </div>
 
         {/* Desktop Menu */}
-        <div className="desktop-menu" style={{
-          display: 'none',
-          '@media (min-width: 768px)': {
-            display: 'block'
-          }
-        }}>
+        <div
+          className="desktop-menu"
+          style={{
+            display: "none",
+            "@media (min-width: 768px)": {
+              display: "block",
+            },
+          }}
+        >
           <Menu
             theme="dark"
             mode="horizontal"
@@ -229,46 +248,55 @@ const MainLayout = ({ children }) => {
         </div>
 
         {/* Mobile Menu Button */}
-        <div className="mobile-menu" style={{
-          display: 'block',
-          '@media (min-width: 768px)': {
-            display: 'none'
-          }
-        }}>
+        <div
+          className="mobile-menu"
+          style={{
+            display: "block",
+            "@media (min-width: 768px)": {
+              display: "none",
+            },
+          }}
+        >
           <Button
             type="text"
-            icon={<MenuOutlined style={{ color: 'white', fontSize: '20px' }} />}
+            icon={<MenuOutlined style={{ color: "white", fontSize: "20px" }} />}
             onClick={showDrawer}
           />
         </div>
 
         {/* User profile for desktop */}
         {user && (
-          <div style={{
-            display: 'none',
-            '@media (min-width: 768px)': {
-              display: 'flex',
-              alignItems: 'center'
-            },
-            marginLeft: 'auto'
-          }}>
+          <div
+            style={{
+              display: "none",
+              "@media (min-width: 768px)": {
+                display: "flex",
+                alignItems: "center",
+              },
+              marginLeft: "auto",
+            }}
+          >
             <Space>
               {/* Notifications dropdown */}
               <Dropdown
                 menu={notificationMenu}
                 placement="bottomRight"
-                trigger={['click']}
+                trigger={["click"]}
               >
                 <Badge count={notificationCount} overflowCount={9}>
                   <Button
                     type="text"
-                    icon={<BellOutlined style={{ color: 'white', fontSize: '18px' }} />}
+                    icon={
+                      <BellOutlined
+                        style={{ color: "white", fontSize: "18px" }}
+                      />
+                    }
                   />
                 </Badge>
               </Dropdown>
 
               <Avatar icon={<UserOutlined />} />
-              <span style={{ color: 'white' }}>{user.username}</span>
+              <span style={{ color: "white" }}>{user.username}</span>
             </Space>
           </div>
         )}
@@ -285,21 +313,31 @@ const MainLayout = ({ children }) => {
         <Menu
           mode="inline"
           selectedKeys={[location.pathname]}
-          style={{ height: '100%' }}
+          style={{ height: "100%" }}
           items={getMenuItems()}
         />
       </Drawer>
 
       {/* Main content */}
-      <Content style={{ padding: '16px', margin: '0 auto', maxWidth: '1200px', width: '100%' }}>
-        <div className="site-layout-content" style={{ minHeight: 'calc(100vh - 134px)' }}>
+      <Content
+        style={{
+          padding: "16px",
+          margin: "0 auto",
+          maxWidth: "1200px",
+          width: "100%",
+        }}
+      >
+        <div
+          className="site-layout-content"
+          style={{ minHeight: "calc(100vh - 134px)" }}
+        >
           {children}
         </div>
       </Content>
 
       {/* Footer */}
-      <Footer style={{ textAlign: 'center', padding: '12px 50px' }}>
-        <div style={{ fontSize: '12px' }}>
+      <Footer style={{ textAlign: "center", padding: "12px 50px" }}>
+        <div style={{ fontSize: "12px" }}>
           AI Health Assistant ©{new Date().getFullYear()} All rights reserved.
         </div>
       </Footer>

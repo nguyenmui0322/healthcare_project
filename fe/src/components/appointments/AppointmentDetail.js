@@ -1,10 +1,33 @@
 // src/components/appointments/AppointmentDetail.js
-import React, { useState, useEffect } from 'react';
-import { Card, Descriptions, Badge, Button, Typography, Space, Divider, Tag, Timeline, Input, Form, List, Skeleton, Empty, Modal, message } from 'antd';
-import { ScheduleOutlined, CalendarOutlined, ClockCircleOutlined, UserOutlined, PhoneOutlined, MailOutlined, CommentOutlined, EditOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import { useParams, useNavigate } from 'react-router-dom';
-import { appointmentService } from '../../api/services/appointmentService';
-import moment from 'moment';
+import React, { useState, useEffect } from "react";
+import {
+  Card,
+  Descriptions,
+  Badge,
+  Button,
+  Typography,
+  Space,
+  Divider,
+  Tag,
+  Timeline,
+  Input,
+  Form,
+  Skeleton,
+  Empty,
+  Modal,
+  message,
+} from "antd";
+import {
+  ScheduleOutlined,
+  UserOutlined,
+  CommentOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
+import { useParams, useNavigate } from "react-router-dom";
+import { appointmentService } from "../../api/services/appointmentService";
+import moment from "moment";
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -15,7 +38,7 @@ const AppointmentDetail = () => {
   const navigate = useNavigate();
   const [appointment, setAppointment] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [noteContent, setNoteContent] = useState('');
+  const [noteContent, setNoteContent] = useState("");
   const [addingNote, setAddingNote] = useState(false);
   const [form] = Form.useForm();
 
@@ -29,7 +52,7 @@ const AppointmentDetail = () => {
       const response = await appointmentService.getAppointmentById(id);
       setAppointment(response.data);
     } catch (error) {
-      console.error('Error fetching appointment details:', error);
+      console.error("Error fetching appointment details:", error);
     } finally {
       setLoading(false);
     }
@@ -37,22 +60,22 @@ const AppointmentDetail = () => {
 
   const handleCancelAppointment = () => {
     confirm({
-      title: 'Are you sure you want to cancel this appointment?',
+      title: "Are you sure you want to cancel this appointment?",
       icon: <ExclamationCircleOutlined />,
-      content: 'This action cannot be undone.',
-      okText: 'Yes, Cancel',
-      okType: 'danger',
-      cancelText: 'No',
+      content: "This action cannot be undone.",
+      okText: "Yes, Cancel",
+      okType: "danger",
+      cancelText: "No",
       onOk: async () => {
         try {
           await appointmentService.cancelAppointment(id);
-          message.success('Appointment cancelled successfully');
+          message.success("Appointment cancelled successfully");
           fetchAppointment(); // Refresh the data
         } catch (error) {
-          console.error('Error cancelling appointment:', error);
-          message.error('Failed to cancel appointment');
+          console.error("Error cancelling appointment:", error);
+          message.error("Failed to cancel appointment");
         }
-      }
+      },
     });
   };
 
@@ -60,12 +83,12 @@ const AppointmentDetail = () => {
     try {
       setAddingNote(true);
       await appointmentService.addNote(id, noteContent);
-      setNoteContent('');
+      setNoteContent("");
       fetchAppointment(); // Refresh to show the new note
-      message.success('Note added successfully');
+      message.success("Note added successfully");
     } catch (error) {
-      console.error('Error adding note:', error);
-      message.error('Failed to add note');
+      console.error("Error adding note:", error);
+      message.error("Failed to add note");
     } finally {
       setAddingNote(false);
     }
@@ -73,13 +96,13 @@ const AppointmentDetail = () => {
 
   const getStatusBadge = (status) => {
     switch (status) {
-      case 'scheduled':
+      case "scheduled":
         return <Badge status="processing" text="Scheduled" />;
-      case 'completed':
+      case "completed":
         return <Badge status="success" text="Completed" />;
-      case 'cancelled':
+      case "cancelled":
         return <Badge status="error" text="Cancelled" />;
-      case 'no_show':
+      case "no_show":
         return <Badge status="warning" text="No Show" />;
       default:
         return <Badge status="default" text={status} />;
@@ -95,20 +118,24 @@ const AppointmentDetail = () => {
   }
 
   if (!appointment) {
-    return (
-      <Empty description="Appointment not found" />
-    );
+    return <Empty description="Appointment not found" />;
   }
 
   return (
-    <Space direction="vertical" size="large" style={{ width: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <Space direction="vertical" size="large" style={{ width: "100%" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <Title level={2}>
           <ScheduleOutlined /> Appointment Details
         </Title>
 
         <Space>
-          {appointment.status === 'scheduled' && (
+          {appointment.status === "scheduled" && (
             <>
               <Button
                 icon={<EditOutlined />}
@@ -134,16 +161,20 @@ const AppointmentDetail = () => {
             {getStatusBadge(appointment.status)}
           </Descriptions.Item>
           <Descriptions.Item label="Date" span={1}>
-            {moment(appointment.appointment_date).format('MMMM D, YYYY')}
+            {moment(appointment.appointment_date).format("MMMM D, YYYY")}
           </Descriptions.Item>
           <Descriptions.Item label="Time" span={2}>
-            {moment(appointment.start_time, 'HH:mm:ss').format('h:mm A')} - {moment(appointment.end_time, 'HH:mm:ss').format('h:mm A')}
+            {moment(appointment.start_time, "HH:mm:ss").format("h:mm A")} -{" "}
+            {moment(appointment.end_time, "HH:mm:ss").format("h:mm A")}
           </Descriptions.Item>
           <Descriptions.Item label="Doctor" span={3}>
             <Space>
               <UserOutlined />
-              Dr. {appointment.doctor_details.user.first_name} {appointment.doctor_details.user.last_name}
-              <Tag color="blue">{appointment.doctor_details.specialization}</Tag>
+              Dr. {appointment.doctor_details.user.first_name}{" "}
+              {appointment.doctor_details.user.last_name}
+              <Tag color="blue">
+                {appointment.doctor_details.specialization}
+              </Tag>
             </Space>
           </Descriptions.Item>
           <Descriptions.Item label="Reason for Visit" span={3}>
@@ -158,16 +189,24 @@ const AppointmentDetail = () => {
       <Card title="Appointment Notes">
         {appointment.notes && appointment.notes.length > 0 ? (
           <Timeline>
-            {appointment.notes.map(note => (
+            {appointment.notes.map((note) => (
               <Timeline.Item key={note.id}>
-                <div style={{ backgroundColor: note.is_private ? '#fffbe6' : '#f0f2f5', padding: '12px', borderRadius: '8px' }}>
-                  <div style={{ marginBottom: '8px' }}>
+                <div
+                  style={{
+                    backgroundColor: note.is_private ? "#fffbe6" : "#f0f2f5",
+                    padding: "12px",
+                    borderRadius: "8px",
+                  }}
+                >
+                  <div style={{ marginBottom: "8px" }}>
                     <Text strong>{note.created_by_name}</Text>
-                    <Text type="secondary" style={{ marginLeft: '10px' }}>
-                      {moment(note.created_at).format('MMM D, YYYY h:mm A')}
+                    <Text type="secondary" style={{ marginLeft: "10px" }}>
+                      {moment(note.created_at).format("MMM D, YYYY h:mm A")}
                     </Text>
                     {note.is_private && (
-                      <Tag color="orange" style={{ marginLeft: '10px' }}>Private</Tag>
+                      <Tag color="orange" style={{ marginLeft: "10px" }}>
+                        Private
+                      </Tag>
                     )}
                   </div>
                   <Paragraph>{note.content}</Paragraph>
@@ -187,7 +226,7 @@ const AppointmentDetail = () => {
               rows={4}
               placeholder="Add a note..."
               value={noteContent}
-              onChange={e => setNoteContent(e.target.value)}
+              onChange={(e) => setNoteContent(e.target.value)}
             />
           </Form.Item>
           <Form.Item>

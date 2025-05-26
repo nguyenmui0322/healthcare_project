@@ -1,5 +1,5 @@
 // src/pages/Login.js
-import React, { useState } from 'react';
+import React from "react";
 import {
   Form,
   Input,
@@ -8,11 +8,11 @@ import {
   Typography,
   Divider,
   Alert,
-  Space
-} from 'antd';
-import { UserOutlined, LockOutlined, LoginOutlined } from '@ant-design/icons';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+  Space,
+} from "antd";
+import { UserOutlined, LockOutlined, LoginOutlined } from "@ant-design/icons";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const { Title, Text } = Typography;
 
@@ -23,7 +23,7 @@ const Login = () => {
   const location = useLocation();
 
   // Get redirect path from location state or default to home
-  const from = location.state?.from?.pathname || '/';
+  const from = location.state?.from?.pathname || "/";
 
   const onFinish = async (values) => {
     const success = await login(values.username, values.password);
@@ -33,16 +33,22 @@ const Login = () => {
   };
 
   return (
-    <div style={{
-      maxWidth: '450px',
-      margin: '0 auto',
-      padding: '20px 0'
-    }}>
-      <Card bordered={false} style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+    <div
+      style={{
+        maxWidth: "450px",
+        margin: "0 auto",
+        padding: "20px 0",
+      }}
+    >
+      <Card
+        bordered={false}
+        style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
+      >
+        <div style={{ textAlign: "center", marginBottom: "24px" }}>
           <Title level={2}>Đăng nhập</Title>
           <Text type="secondary">
-            Đăng nhập để lưu trữ lịch sử chẩn đoán và quản lý thông tin sức khỏe của bạn
+            Đăng nhập để lưu trữ lịch sử chẩn đoán và quản lý thông tin sức khỏe
+            của bạn
           </Text>
         </div>
 
@@ -52,7 +58,7 @@ const Login = () => {
             description={error}
             type="error"
             showIcon
-            style={{ marginBottom: '24px' }}
+            style={{ marginBottom: "24px" }}
           />
         )}
 
@@ -66,7 +72,9 @@ const Login = () => {
           <Form.Item
             name="username"
             label="Tên đăng nhập"
-            rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập!' }]}
+            rules={[
+              { required: true, message: "Vui lòng nhập tên đăng nhập!" },
+            ]}
           >
             <Input
               prefix={<UserOutlined />}
@@ -78,7 +86,7 @@ const Login = () => {
           <Form.Item
             name="password"
             label="Mật khẩu"
-            rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
+            rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
           >
             <Input.Password
               prefix={<LockOutlined />}
@@ -105,8 +113,8 @@ const Login = () => {
           <Text type="secondary">Hoặc</Text>
         </Divider>
 
-        <div style={{ textAlign: 'center' }}>
-          <Space direction="vertical" style={{ width: '100%' }}>
+        <div style={{ textAlign: "center" }}>
+          <Space direction="vertical" style={{ width: "100%" }}>
             <Text>Chưa có tài khoản?</Text>
             <Button type="default" block>
               <Link to="/register">Đăng ký ngay</Link>
