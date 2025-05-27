@@ -1,10 +1,9 @@
 // src/api/services/chatService.js
-import axios from 'axios';
+import api from '../api';
 
-const API_BASE_URL = 'http://localhost:8000'; // Replace with your actual API base URL
 const API_ENDPOINTS = {
-  CHAT_ROOMS: '/api/chat/rooms/',
-  MESSAGES: '/api/chat/messages/',
+  CHAT_ROOMS: '/api/v1/chat/rooms/',
+  MESSAGES: '/api/v1/chat/messages/',
 };
 
 export const chatService = {
@@ -14,7 +13,7 @@ export const chatService = {
    */
   getChatRooms: async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}${API_ENDPOINTS.CHAT_ROOMS}`);
+      const response = await api.get(API_ENDPOINTS.CHAT_ROOMS);
       return response;
     } catch (error) {
       throw error;
@@ -31,8 +30,8 @@ export const chatService = {
    */
   createChatRoom: async (chatRoomData) => {
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}${API_ENDPOINTS.CHAT_ROOMS}`,
+      const response = await api.post(
+        API_ENDPOINTS.CHAT_ROOMS,
         chatRoomData
       );
       return response;
@@ -48,8 +47,8 @@ export const chatService = {
    */
   getChatMessages: async (roomId) => {
     try {
-      const response = await axios.get(
-        `${API_BASE_URL}${API_ENDPOINTS.CHAT_ROOMS}${roomId}/messages/`
+      const response = await api.get(
+        `${API_ENDPOINTS.CHAT_ROOMS}${roomId}/messages/`
       );
       return response;
     } catch (error) {
@@ -66,8 +65,8 @@ export const chatService = {
    */
   sendMessage: async (roomId, messageData) => {
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}${API_ENDPOINTS.CHAT_ROOMS}${roomId}/send_message/`,
+      const response = await api.post(
+        `${API_ENDPOINTS.CHAT_ROOMS}${roomId}/send_message/`,
         messageData
       );
       return response;
@@ -83,8 +82,8 @@ export const chatService = {
    */
   markMessageAsRead: async (messageId) => {
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}${API_ENDPOINTS.MESSAGES}${messageId}/mark_read/`
+      const response = await api.post(
+        `${API_ENDPOINTS.MESSAGES}${messageId}/mark_read/`
       );
       return response;
     } catch (error) {
@@ -99,8 +98,8 @@ export const chatService = {
    */
   deleteMessage: async (messageId) => {
     try {
-      const response = await axios.delete(
-        `${API_BASE_URL}${API_ENDPOINTS.MESSAGES}${messageId}/`
+      const response = await api.delete(
+        `${API_ENDPOINTS.MESSAGES}${messageId}/`
       );
       return response;
     } catch (error) {

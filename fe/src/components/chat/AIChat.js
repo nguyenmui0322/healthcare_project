@@ -89,7 +89,14 @@ const AIChat = () => {
 
         // Check if there's an existing AI chat room
         const response = await chatService.getChatRooms();
-        const aiChatRoom = response.data.find((room) => room.is_ai_chat);
+        console.log('DEBUG chat rooms:', response.data); // Thêm dòng này để debug
+        // Sửa lại lấy từ response.data.results nếu có, nếu không thì trả về mảng rỗng
+        const chatRooms = Array.isArray(response.data.results)
+          ? response.data.results
+          : Array.isArray(response.data)
+            ? response.data
+            : [];
+        const aiChatRoom = chatRooms.find((room) => room.is_ai_chat);
 
         if (aiChatRoom) {
           // Use existing chat room
@@ -115,8 +122,27 @@ const AIChat = () => {
   const fetchChatRooms = async () => {
     try {
       const response = await chatService.getChatRooms();
-      const aiChatRooms = response.data.filter((room) => room.is_ai_chat);
-      setPreviousChats(aiChatRooms);
+      // Đảm bảo luôn là mảng
+      const chatRooms = Array.isArray(response.data.results)
+        ? response.data.results
+        : Array.isArray(response.data)
+          ? response.data
+          : [];
+      const aiChatRooms = chatRooms.filter((room) => room.is_ai_chat);
+      // Đảm bảo previousChats luôn là mảng, không bao giờ là undefined/null/object
+      if (Array.isArray(aiChatRooms)) {
+        setPreviousChats([...aiChatRooms]);
+      } else {
+        setPreviousChats([]);
+      }
+      // Nếu previousChats không phải mảng, log ra để debug
+      if (!Array.isArray(aiChatRooms)) {
+        console.error('aiChatRooms is not an array:', aiChatRooms);
+      }
+      // Nếu chatRooms không phải mảng, log ra để debug triệt để
+      if (!Array.isArray(chatRooms)) {
+        console.error('chatRooms is not an array:', chatRooms);
+      }
     } catch (error) {
       console.error("Error fetching chat rooms:", error);
     }
@@ -130,10 +156,17 @@ const AIChat = () => {
         is_ai_chat: true,
         participant_ids: [], // No additional participants
       });
-
-      setChatRoomId(newRoomResponse.data.id);
-      fetchChatRooms(); // Refresh the list of chat rooms
+      const newRoomId = newRoomResponse.data.id;
+      setChatRoomId(newRoomId);
       setMessages([]); // Clear messages for new chat
+      setInputMessage(""); // Reset input value
+      // Đảm bảo fetchMessages chạy sau khi setChatRoomId
+      setTimeout(() => {
+        fetchMessages(newRoomId); // Load messages for the new chat room
+        if (inputRef.current) inputRef.current.focus();
+        console.log('DEBUG newRoomId:', newRoomId, 'chatRoomId:', chatRoomId, 'loading:', loading);
+      }, 100);
+      fetchChatRooms(); // Refresh the list of chat rooms (không cần await)
     } catch (error) {
       console.error("Error creating new chat room:", error);
     } finally {
@@ -147,7 +180,8 @@ const AIChat = () => {
     try {
       setLoading(true);
       const response = await chatService.getChatMessages(roomId);
-      setMessages(response.data || []);
+      // Sửa tại đây: lấy đúng mảng messages từ response.data.results
+      setMessages(Array.isArray(response.data.results) ? response.data.results : []);
     } catch (error) {
       console.error("Error fetching messages:", error);
     } finally {
@@ -162,12 +196,16 @@ const AIChat = () => {
   };
 
   useEffect(() => {
-    // Scroll to bottom when messages change
-    scrollToBottom();
+    // Scroll to bottom when messages change, delay để DOM cập nhật xong
+    setTimeout(() => {
+      scrollToBottom();
+    }, 100);
   }, [messages]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   const handleSendMessage = async () => {
@@ -184,8 +222,7 @@ const AIChat = () => {
         sent_at: new Date().toISOString(),
         sender_name: "You",
       };
-
-      setMessages((prev) => [...prev, userMessage]);
+      setMessages((prev) => Array.isArray(prev) ? [...prev, userMessage] : [userMessage]);
       setInputMessage("");
 
       // Focus back on input after sending
@@ -205,7 +242,7 @@ const AIChat = () => {
         sent_at: new Date().toISOString(),
       };
 
-      setMessages((prev) => [...prev, loadingMessage]);
+      setMessages((prev) => Array.isArray(prev) ? [...prev, loadingMessage] : [loadingMessage]);
 
       // Fetch all messages after sending
       // This will include the AI response which is generated on the backend
@@ -287,10 +324,10 @@ const AIChat = () => {
 
       {showPreviousChats && (
         <Card title="Previous Conversations" size="small">
-          {previousChats.length > 0 ? (
+          {Array.isArray(previousChats) && previousChats.length > 0 ? (
             <List
               size="small"
-              dataSource={previousChats}
+              dataSource={Array.isArray(previousChats) ? previousChats : (console.error('previousChats is not array', previousChats) || [])}
               renderItem={(chat) => (
                 <List.Item
                   key={chat.id}
@@ -371,6 +408,7 @@ const AIChat = () => {
       <Card
         style={{
           height: "500px",
+          minHeight: 300,
           display: "flex",
           flexDirection: "column",
         }}
@@ -381,6 +419,8 @@ const AIChat = () => {
             overflowY: "auto",
             padding: "0 10px",
             marginBottom: "10px",
+            minHeight: 0,
+            maxHeight: "420px",
           }}
         >
           {loading && messages.length === 0 ? (
@@ -424,7 +464,7 @@ const AIChat = () => {
           ) : (
             <List
               itemLayout="horizontal"
-              dataSource={messages}
+              dataSource={Array.isArray(messages) ? messages : (console.error('messages is not array', messages) || [])}
               renderItem={(message) => (
                 <List.Item
                   style={{
@@ -518,7 +558,7 @@ const AIChat = () => {
               )}
             />
           )}
-          <div ref={messagesEndRef} />
+          <div ref={messagesEndRef} style={{ float: "left", clear: "both" }} />
         </div>
 
         <Divider style={{ margin: "10px 0" }} />
