@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'chat.apps.ChatConfig',
     'notifications.apps.NotificationsConfig',
     'patient.apps.PatientConfig',
+    'department.apps.DepartmentConfig',
 ]
 
 MIDDLEWARE = [

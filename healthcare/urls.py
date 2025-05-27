@@ -43,6 +43,8 @@ urlpatterns = [
     path('api/v1/chat/', include('chat.api.urls')),
     path('api/v1/', include('notifications.api.urls')),
     path('api/v1/', include('patient.api.urls')),  # Integrated patient API routes
+    path('', include('patient.urls')),  # New route for patient list interface
+    path('api/v1/', include('department.api_urls')),  # Sửa lại để endpoint là /api/v1/departments/
 
     # JWT Authentication
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

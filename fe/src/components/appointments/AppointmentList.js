@@ -52,7 +52,13 @@ const AppointmentList = () => {
         response = await appointmentService.getAppointments();
       }
 
-      setAppointments(response.data);
+      setAppointments(
+        Array.isArray(response.data.results)
+          ? response.data.results
+          : Array.isArray(response.data)
+          ? response.data
+          : []
+      );
     } catch (error) {
       console.error("Error fetching appointments:", error);
     } finally {

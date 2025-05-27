@@ -27,6 +27,10 @@ import AppointmentList from "./components/appointments/AppointmentList";
 import AppointmentForm from "./components/appointments/AppointmentForm";
 import AppointmentDetail from "./components/appointments/AppointmentDetail";
 import AIChat from "./components/chat/AIChat";
+import PatientList from "./pages/PatientList";
+import PatientCRUD from "./pages/PatientCRUD";
+import DepartmentList from "./pages/DepartmentList";
+import DepartmentCRUD from "./pages/DepartmentCRUD";
 
 // Components
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -107,6 +111,14 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
+
+              {/* Patient routes */}
+              <Route path="/patients" element={<PatientList />} />
+              <Route path="/patients-crud" element={<PatientCRUD />} />
+
+              {/* Department routes */}
+              <Route path="/departments" element={<DepartmentList />} />
+              <Route path="/departments-crud" element={<DepartmentCRUD />} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>

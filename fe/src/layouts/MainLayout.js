@@ -105,6 +105,18 @@ const MainLayout = ({ children }) => {
         label: "AI Health Assistant",
         onClick: () => handleMenuClick("/ai-chat"),
       },
+      {
+        key: "/patients",
+        icon: <TeamOutlined />,
+        label: "Patients",
+        onClick: () => handleMenuClick("/patients"),
+      },
+      {
+        key: "/departments",
+        icon: <TeamOutlined />,
+        label: "Departments",
+        onClick: () => handleMenuClick("/departments"),
+      },
     ];
 
     // Add authenticated menu items

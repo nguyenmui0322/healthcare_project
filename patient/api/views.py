@@ -1,8 +1,12 @@
 from rest_framework import viewsets, permissions
-from django.contrib.auth.models import User
-from .serializers import PatientSerializer
+from patient.models import Patient
+from .serializers import PatientSerializer, PatientCreateSerializer
 
-class PatientViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = User.objects.filter(groups__name='Patients')
-    serializer_class = PatientSerializer
+class PatientViewSet(viewsets.ModelViewSet):
+    queryset = Patient.objects.select_related('user').all()
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return PatientCreateSerializer
+        return PatientSerializer
