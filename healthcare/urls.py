@@ -17,7 +17,7 @@ from rest_framework import permissions
 schema_view = get_schema_view(
     openapi.Info(
         title="Healthcare API",
-        default_version='v1',
+        default_version="v1",
         description="API documentation for the Healthcare System",
         terms_of_service="https://www.example.com/policies/terms/",
         contact=openapi.Contact(email="contact@healthcare.example.com"),
@@ -28,33 +28,31 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-
+    path("admin/", admin.site.urls),
     # API routes for original modules
-    path('api/v1/', include('ai_model.api.urls')),
-    path('api/v1/', include('users.urls')),
-
+    path("api/v1/", include("ai_model.api.urls")),
+    path("api/v1/", include("users.urls")),
     # API routes for new modules
-    path('api/v1/doctors/', include('doctors.api.urls')),
-    path('api/v1/appointments/', include('appointments.api.urls')),
-    path('api/v1/pharmacy/', include('pharmacy.api.urls')),
-    path('api/v1/laboratory/', include('laboratory.api.urls')),
-    path('api/v1/billing/', include('billing.api.urls')),
-    path('api/v1/chat/', include('chat.api.urls')),
-    path('api/v1/', include('notifications.api.urls')),
-    path('api/v1/', include('patient.api.urls')),  # Integrated patient API routes
-    path('', include('patient.urls')),  # New route for patient list interface
-    path('api/v1/', include('department.api_urls')),  # Sửa lại để endpoint là /api/v1/departments/
-
+    path("api/v1/doctors/", include("doctors.api.urls")),
+    path("api/v1/appointments/", include("appointments.api.urls")),
+    path("api/v1/pharmacy/", include("pharmacy.api.urls")),
+    path("api/v1/laboratory/", include("laboratory.api.urls")),
+    path("api/v1/billing/", include("billing.api.urls")),
+    path("api/v1/chat/", include("chat.api.urls")),
+    path("api/v1/", include("notifications.api.urls")),
+    path("api/v1/", include("patient.api.urls")),  # Integrated patient API routes
+    path("", include("patient.urls")),  # New route for patient list interface
+    path(
+        "api/v1/", include("department.api_urls")
+    ),  # Sửa lại để endpoint là /api/v1/departments/
     # JWT Authentication
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-
+    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
     # API Documentation
-    #path('api/docs/', include_docs_urls(title='Healthcare API')),
-    #path('api/swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    #path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    # path('api/docs/', include_docs_urls(title='Healthcare API')),
+    # path('api/swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    # path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
 
 if settings.DEBUG:

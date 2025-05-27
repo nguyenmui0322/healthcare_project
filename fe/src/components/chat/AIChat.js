@@ -89,13 +89,13 @@ const AIChat = () => {
 
         // Check if there's an existing AI chat room
         const response = await chatService.getChatRooms();
-        console.log('DEBUG chat rooms:', response.data); // Thêm dòng này để debug
+        console.log("DEBUG chat rooms:", response.data); // Thêm dòng này để debug
         // Sửa lại lấy từ response.data.results nếu có, nếu không thì trả về mảng rỗng
         const chatRooms = Array.isArray(response.data.results)
           ? response.data.results
           : Array.isArray(response.data)
-            ? response.data
-            : [];
+          ? response.data
+          : [];
         const aiChatRoom = chatRooms.find((room) => room.is_ai_chat);
 
         if (aiChatRoom) {
@@ -126,8 +126,8 @@ const AIChat = () => {
       const chatRooms = Array.isArray(response.data.results)
         ? response.data.results
         : Array.isArray(response.data)
-          ? response.data
-          : [];
+        ? response.data
+        : [];
       const aiChatRooms = chatRooms.filter((room) => room.is_ai_chat);
       // Đảm bảo previousChats luôn là mảng, không bao giờ là undefined/null/object
       if (Array.isArray(aiChatRooms)) {
@@ -137,11 +137,11 @@ const AIChat = () => {
       }
       // Nếu previousChats không phải mảng, log ra để debug
       if (!Array.isArray(aiChatRooms)) {
-        console.error('aiChatRooms is not an array:', aiChatRooms);
+        console.error("aiChatRooms is not an array:", aiChatRooms);
       }
       // Nếu chatRooms không phải mảng, log ra để debug triệt để
       if (!Array.isArray(chatRooms)) {
-        console.error('chatRooms is not an array:', chatRooms);
+        console.error("chatRooms is not an array:", chatRooms);
       }
     } catch (error) {
       console.error("Error fetching chat rooms:", error);
@@ -154,19 +154,21 @@ const AIChat = () => {
       const newRoomResponse = await chatService.createChatRoom({
         title: "AI Health Assistant Chat",
         is_ai_chat: true,
-        participant_ids: [], // No additional participants
+        participant_ids: [],
       });
       const newRoomId = newRoomResponse.data.id;
+
+      // Cập nhật ngay bằng newRoomId thay vì chờ state update
       setChatRoomId(newRoomId);
-      setMessages([]); // Clear messages for new chat
-      setInputMessage(""); // Reset input value
-      // Đảm bảo fetchMessages chạy sau khi setChatRoomId
-      setTimeout(() => {
-        fetchMessages(newRoomId); // Load messages for the new chat room
-        if (inputRef.current) inputRef.current.focus();
-        console.log('DEBUG newRoomId:', newRoomId, 'chatRoomId:', chatRoomId, 'loading:', loading);
-      }, 100);
-      fetchChatRooms(); // Refresh the list of chat rooms (không cần await)
+      setMessages([]);
+      setInputMessage("");
+
+      fetchMessages(newRoomId);
+      inputRef.current?.focus();
+
+      console.log("DEBUG newRoomId:", newRoomId);
+
+      fetchChatRooms(); // làm mới danh sách chat
     } catch (error) {
       console.error("Error creating new chat room:", error);
     } finally {
@@ -180,8 +182,9 @@ const AIChat = () => {
     try {
       setLoading(true);
       const response = await chatService.getChatMessages(roomId);
-      // Sửa tại đây: lấy đúng mảng messages từ response.data.results
-      setMessages(Array.isArray(response.data.results) ? response.data.results : []);
+      setMessages(
+        Array.isArray(response.data.results) ? response.data.results : []
+      );
     } catch (error) {
       console.error("Error fetching messages:", error);
     } finally {
@@ -211,47 +214,45 @@ const AIChat = () => {
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || !chatRoomId) return;
 
+    const tempMessage = {
+      id: `temp-${new Date().getTime()}`,
+      content: inputMessage,
+      is_ai_message: false,
+      sent_at: new Date().toISOString(),
+      sender_name: "You",
+    };
+
     try {
       setSending(true);
 
-      // Add user message to the UI immediately for responsiveness
-      const userMessage = {
-        id: `temp-${new Date().getTime()}`,
-        content: inputMessage,
-        is_ai_message: false,
-        sent_at: new Date().toISOString(),
-        sender_name: "You",
-      };
-      setMessages((prev) => Array.isArray(prev) ? [...prev, userMessage] : [userMessage]);
-      setInputMessage("");
+      // Add temporary user message immediately
+      setMessages((prev) =>
+        Array.isArray(prev) ? [...prev, tempMessage] : [tempMessage]
+      );
 
-      // Focus back on input after sending
+      // Clear input and focus back
+      setInputMessage("");
       inputRef.current?.focus();
 
       // Send message to backend
-      await chatService.sendMessage(chatRoomId, {
+      const response = await chatService.sendMessage(chatRoomId, {
         content: inputMessage,
       });
 
-      // Add loading message while waiting for AI response
-      const loadingMessage = {
-        id: `loading-${new Date().getTime()}`,
-        content: "...",
-        is_ai_message: true,
-        is_loading: true,
-        sent_at: new Date().toISOString(),
-      };
-
-      setMessages((prev) => Array.isArray(prev) ? [...prev, loadingMessage] : [loadingMessage]);
-
-      // Fetch all messages after sending
-      // This will include the AI response which is generated on the backend
-      setTimeout(async () => {
-        await fetchMessages(chatRoomId);
-        setSending(false);
-      }, 1000); // Give backend a second to generate response
+      // Update messages with real messages from backend (both user and AI messages)
+      setMessages((prev) => {
+        const currentMessages = Array.isArray(prev) ? [...prev] : [];
+        // Remove the temporary message
+        const withoutTemp = currentMessages.filter(
+          (msg) => msg.id !== tempMessage.id
+        );
+        // Add the real messages from backend
+        return [...withoutTemp, ...response.data.messages];
+      });
     } catch (error) {
       console.error("Error sending message:", error);
+      // Keep the temporary message in case of error
+    } finally {
       setSending(false);
     }
   };
@@ -327,7 +328,14 @@ const AIChat = () => {
           {Array.isArray(previousChats) && previousChats.length > 0 ? (
             <List
               size="small"
-              dataSource={Array.isArray(previousChats) ? previousChats : (console.error('previousChats is not array', previousChats) || [])}
+              dataSource={
+                Array.isArray(previousChats)
+                  ? previousChats
+                  : console.error(
+                      "previousChats is not array",
+                      previousChats
+                    ) || []
+              }
               renderItem={(chat) => (
                 <List.Item
                   key={chat.id}
@@ -410,7 +418,7 @@ const AIChat = () => {
           height: "500px",
           minHeight: 300,
           display: "flex",
-          flexDirection: "column",
+          flexDirection: "column-reverse",
         }}
       >
         <div
@@ -464,7 +472,11 @@ const AIChat = () => {
           ) : (
             <List
               itemLayout="horizontal"
-              dataSource={Array.isArray(messages) ? messages : (console.error('messages is not array', messages) || [])}
+              dataSource={
+                Array.isArray(messages)
+                  ? messages
+                  : console.error("messages is not array", messages) || []
+              }
               renderItem={(message) => (
                 <List.Item
                   style={{

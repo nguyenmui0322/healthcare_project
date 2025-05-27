@@ -93,36 +93,36 @@ const MainLayout = ({ children }) => {
         label: "Home",
         onClick: () => handleMenuClick("/"),
       },
-      {
-        key: "/doctors",
-        icon: <TeamOutlined />,
-        label: "Find Doctors",
-        onClick: () => handleMenuClick("/doctors"),
-      },
-      {
-        key: "/ai-chat",
-        icon: <RobotOutlined />,
-        label: "AI Health Assistant",
-        onClick: () => handleMenuClick("/ai-chat"),
-      },
-      {
-        key: "/patients",
-        icon: <TeamOutlined />,
-        label: "Patients",
-        onClick: () => handleMenuClick("/patients"),
-      },
-      {
-        key: "/departments",
-        icon: <TeamOutlined />,
-        label: "Departments",
-        onClick: () => handleMenuClick("/departments"),
-      },
     ];
 
     // Add authenticated menu items
     if (user) {
       return [
         ...baseItems,
+        {
+          key: "/doctors",
+          icon: <TeamOutlined />,
+          label: "Find Doctors",
+          onClick: () => handleMenuClick("/doctors"),
+        },
+        {
+          key: "/ai-chat",
+          icon: <RobotOutlined />,
+          label: "AI Health Assistant",
+          onClick: () => handleMenuClick("/ai-chat"),
+        },
+        {
+          key: "/patients",
+          icon: <TeamOutlined />,
+          label: "Patients",
+          onClick: () => handleMenuClick("/patients"),
+        },
+        {
+          key: "/departments",
+          icon: <TeamOutlined />,
+          label: "Departments",
+          onClick: () => handleMenuClick("/departments"),
+        },
         {
           key: "/dashboard",
           icon: <DashboardOutlined />,
